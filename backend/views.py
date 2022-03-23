@@ -1,9 +1,11 @@
+import re
 import time
 
 from django.http import JsonResponse
 from django.shortcuts import render
 
 # Create your views here.
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -27,13 +29,19 @@ def get_code(user):
     return (key, status)
 
 
+
 class GetMessageView(APIView):
 
     def post(self, request):
-        user = ReferralUser.objects.get_or_create(phone_number=request.data['phone_number'])[0]
+        phone_number = request.data.get('phone_number', '1')
+        if not re.match(r'^\+?1?\d{9,15}$', phone_number):
+            raise ValidationError("Phone number must be entered in the format: '+999999999'."
+                                  " Up to 15 digits allowed.")
+        user = ReferralUser.objects.get_or_create(phone_number=phone_number)[0]
         code, status = get_code(user)
         return JsonResponse({'code': code}, status=status)
 
 
-    # authentication_classes = [authentication.MyTokenAuthentication]
-    # permission_classes = [IsAuthenticated]
+
+        # authentication_classes = [authentication.MyTokenAuthentication]
+        # permission_classes = [IsAuthenticated]
