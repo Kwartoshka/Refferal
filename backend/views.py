@@ -11,7 +11,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from random import randint
 from backend import authentication
-from backend.models import ReferralUser, ConfirmationCode
+from backend.models import ReferralUser, ConfirmationCode, MyToken
+
 
 def get_code(user):
 
@@ -42,6 +43,31 @@ class GetMessageView(APIView):
         return JsonResponse({'code': code}, status=status)
 
 
+
+class LogInView(APIView):
+
+    """Log in endpoint returns AuthToken that is used to see user's profile"""
+
+    def get(self, request):
+        phone_number = request.data.get('phone_number', '1')
+        code = request.data.get('code')
+        if not re.match(r'^\+?1?\d{9,15}$', phone_number):
+            raise ValidationError("Phone number must be entered in the format: '+999999999'."
+                                  " Up to 15 digits allowed.")
+        user = ReferralUser.objects.filter(phone_number=phone_number)[0]
+        if not user:
+            return JsonResponse({'Response': 'No such user'}, status=400)
+
+        confirmation = ConfirmationCode.objects.filter(user=user)
+        if not confirmation:
+            return JsonResponse({'Response': 'No active code. Ask the code first'}, status=400)
+
+        if confirmation.first().code != int(code):
+            return JsonResponse({'Response': 'Wrong code'}, status=400)
+
+        token = MyToken.objects.get_or_create(user=user)[0]
+        confirmation.delete()
+        return JsonResponse({'AuthToken': f'{token.key}'}, status=200)
 
         # authentication_classes = [authentication.MyTokenAuthentication]
         # permission_classes = [IsAuthenticated]
