@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from random import randint
 from backend import authentication
 from backend.models import ReferralUser, ConfirmationCode, MyToken
+from backend.serializers import ReferralUserSerializer
 
 
 def get_code(user):
@@ -25,7 +26,7 @@ def get_code(user):
         code.update(code=key)
         status = 200
     else:
-        ConfirmationCode.objects.create(user=user, code=randint(1000, 9999))
+        ConfirmationCode.objects.create(user=user, code=key)
         status = 200
     return (key, status)
 
@@ -43,7 +44,6 @@ class GetMessageView(APIView):
         return JsonResponse({'code': code}, status=status)
 
 
-
 class LogInView(APIView):
 
     """Log in endpoint returns AuthToken that is used to see user's profile"""
@@ -54,7 +54,8 @@ class LogInView(APIView):
         if not re.match(r'^\+?1?\d{9,15}$', phone_number):
             raise ValidationError("Phone number must be entered in the format: '+999999999'."
                                   " Up to 15 digits allowed.")
-        user = ReferralUser.objects.filter(phone_number=phone_number)[0]
+        user_to_update = ReferralUser.objects.filter(phone_number=phone_number)
+        user = user_to_update[0]
         if not user:
             return JsonResponse({'Response': 'No such user'}, status=400)
 
@@ -65,9 +66,20 @@ class LogInView(APIView):
         if confirmation.first().code != int(code):
             return JsonResponse({'Response': 'Wrong code'}, status=400)
 
+        referral_code = user.referral_code
+        if not referral_code:
+            referral_code = randint(100000, 999999)
+            user_to_update.update(referral_code=referral_code)
         token = MyToken.objects.get_or_create(user=user)[0]
         confirmation.delete()
-        return JsonResponse({'AuthToken': f'{token.key}'}, status=200)
+        return JsonResponse({'AuthToken': f'{token.key}', 'referral code': referral_code}, status=200)
 
-        # authentication_classes = [authentication.MyTokenAuthentication]
-        # permission_classes = [IsAuthenticated]
+
+class ProfileView(APIView):
+    authentication_classes = [authentication.MyTokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        serializer = ReferralUserSerializer(request.user)
+        return JsonResponse(serializer.data, status=200)

@@ -15,10 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from backend.views import GetMessageView, LogInView
+from backend.views import GetMessageView, LogInView, ProfileView
 
 urlpatterns = [
     path('api/get_message', GetMessageView.as_view(), name='get_message'),
     path('api/log_in', LogInView.as_view(), name='log_in'),
+    path('api/profile', ProfileView.as_view(), name='profile'),
     path('admin/', admin.site.urls),
 ]
