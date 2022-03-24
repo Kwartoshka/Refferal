@@ -2,18 +2,15 @@ import re
 import time
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
-from django.shortcuts import render
-
-# Create your views here.
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.views import APIView
 from random import randint
 from backend import authentication
 from backend.models import ReferralUser, ConfirmationCode, MyToken
 from backend.serializers import ReferralUserSerializer
-
+import random
+import string
 
 def get_code(user):
 
@@ -71,7 +68,7 @@ class LogInView(APIView):
         referral_code = user.referral_code
 
         if not referral_code:
-            referral_code = randint(100000, 999999)
+            referral_code = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(6)])
             user.referral_code = referral_code
             user.save()
 
@@ -98,13 +95,8 @@ class ProfileView(APIView):
         inviter_code = request.data.get("inviter")
         if not inviter_code:
             return JsonResponse({'No inviter error': "Please, enter the inviter"}, status=400)
-        try:
-            inviter_code = int(inviter_code)
-        except Exception:
-            return JsonResponse({'Wrong referal code': "Please, enter the referal code as an example format '111111'"},
-                         status=400)
-        if not 100000 <= inviter_code <= 999999:
-            return JsonResponse({'Wrong referal code': "Please, enter the referal code as an example format '111111'"},
+        if len(inviter_code) != 6:
+            return JsonResponse({'Wrong referal code': "Please, enter the referal code as an example format '1a111k'"},
                          status=400)
         if user.inviter:
             return JsonResponse({'Inviter already exists': "Sorry, but you've already added an inviter."},

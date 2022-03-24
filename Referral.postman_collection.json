@@ -1,0 +1,160 @@
+{
+	"info": {
+		"_postman_id": "6c162f90-704b-418d-9da4-1b5d078cd408",
+		"name": "Referral",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01. Get message / create user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "phone_number",
+							"value": "88005553535",
+							"type": "text"
+						}
+					],
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://kwartoshka-referral.herokuapp.com/api/get_message",
+					"protocol": "https",
+					"host": [
+						"kwartoshka-referral",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"api",
+						"get_message"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "02. Log in / get auth token",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "phone_number",
+							"value": "88005553535",
+							"type": "text"
+						},
+						{
+							"key": "code",
+							"value": "6475",
+							"type": "text"
+						}
+					],
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://kwartoshka-referral.herokuapp.com/api/log_in",
+					"protocol": "https",
+					"host": [
+						"kwartoshka-referral",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"api",
+						"log_in"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03. User's profile",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Token fcc4c43da475f79495b23ac9478249074bb7b1e5",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "https://kwartoshka-referral.herokuapp.com/api/profile",
+					"protocol": "https",
+					"host": [
+						"kwartoshka-referral",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"api",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04. Add an inviter to user",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Token 0d230fc19bda1a17e90d790975f0433f1355cc78",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "inviter",
+							"value": "525364",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://kwartoshka-referral.herokuapp.com/api/profile",
+					"protocol": "https",
+					"host": [
+						"kwartoshka-referral",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"api",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
